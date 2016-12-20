@@ -125,7 +125,7 @@ static class Program
                 {
                     if (result.Count == 0 || result.Count <= coCount)
                     {
-                        result.Insert(coCount, (int)Char.GetNumericValue(currentProduct[1]));
+                        result.Insert(coCount, (int)Char.GetNumericValue(currentProduct[0]));
                     }
                     else
                     {
