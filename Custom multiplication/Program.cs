@@ -8,12 +8,23 @@ static class Program
 {
     static void Main(string[] args)
     {
-        string input = Console.ReadLine();
+        string input = Console.ReadLine(); // Assume input to be two string-integer separated by a space
         string[] multiplyInput = input.Split(' ');
         List<int> output = Multiply(IntToDigList(multiplyInput[0]), IntToDigList(multiplyInput[1]));
+        // Print out the result of the multiplication
+        foreach(int integer in output)
+        {
+            Console.Write(integer.ToString());
+        }
         Console.ReadLine();
     }
 
+    /// <summary>
+    /// Perform multiplication between 2 integers.
+    /// </summary>
+    /// <param name="x">List representing integer 1</param>
+    /// <param name="y">List representing integer 2</param>
+    /// <returns>Multiplication result in a list</returns>
     static List<int> Multiply(List<int> x, List<int> y)
     {
         x.Reverse();
@@ -30,71 +41,40 @@ static class Program
             for (int ctrX = 0; ctrX < x.Count; ctrX++)
             {
                 string product = (x.ElementAt(ctrX) * y.ElementAt(ctrY)).ToString();
-                //product = (Int32.Parse(product) + tempCO).ToString();
-
                 char[] currentProduct = product.ToCharArray();
-                //tempCO = (int)Char.GetNumericValue(currentProduct[0]); // Store the carry over for the multiplication
 
                 int AddCO = 0;
                 string addition;
                 int coCount = tempAddCount;
 
-                if (currentProduct.Length > 1) //Assuming 2 digits product
+                if (currentProduct.Length > 1) // Assuming 2-digit product
                 {
-                    if (result.Count == 0 || result.Count <= coCount)
+                    // Check if the result buffer contains any value
+                    if (result.Count == 0 || result.Count <= coCount) 
                     {
-                        result.Insert(coCount, (int)Char.GetNumericValue(currentProduct[1]));
+                        result.Insert(coCount, (int)Char.GetNumericValue(currentProduct[1])); // Result buffer is empty
                     }
                     else
                     {
+                        // Result buffer is not empty
                         addition = ((int)Char.GetNumericValue(currentProduct[1]) + result.ElementAt(coCount)).ToString();
-
-                        if (addition.Length > 1)
-                        {
-                            char[] currentAddition = addition.ToCharArray();
-                            result[coCount] = (int)Char.GetNumericValue(currentAddition[1]);
-                            AddCO = (int)Char.GetNumericValue(currentAddition[0]);
-                        }
-                        else
-                        {
-                            result[coCount] = Int32.Parse(addition);
-                        }
+                        processAddition(ref result, ref AddCO, addition, coCount, false);
                     }
 
-                    coCount++;
+                    coCount++; // Increase x-position by 1
 
                     if (result.Count == 0 || result.Count <= coCount)
                     {
                         addition = ((int)Char.GetNumericValue(currentProduct[0]) + AddCO).ToString();
-                        if (addition.Length > 1)
-                        {
-                            char[] currentAddition = addition.ToCharArray();
-                            result.Insert(coCount, (int)Char.GetNumericValue(currentAddition[1]));
-                            AddCO = (int)Char.GetNumericValue(currentAddition[0]);
-                        }
-                        else
-                        {
-                            result.Insert(coCount, Int32.Parse(addition));
-                            AddCO = 0;
-                        }
+                        processAddition(ref result, ref AddCO, addition, coCount, true);
                     }
                     else
                     {
                         addition = ((int)Char.GetNumericValue(currentProduct[0]) + AddCO + result.ElementAt(coCount)).ToString();
-                        if (addition.Length > 1)
-                        {
-                            char[] currentAddition = addition.ToCharArray();
-                            result[coCount] = (int)Char.GetNumericValue(currentAddition[1]);
-                            AddCO = (int)Char.GetNumericValue(currentAddition[0]);
-                        }
-                        else
-                        {
-                            result[coCount] = Int32.Parse(addition);
-                            AddCO = 0;
-                        }
+                        processAddition(ref result, ref AddCO, addition, coCount, false);
                     }
 
-                    while (AddCO > 0)
+                    while (AddCO > 0) // Continue to move x-position until there is no carry over (addition)
                     {
                         coCount++;
 
@@ -106,22 +86,11 @@ static class Program
                         else
                         {
                             addition = (AddCO + result.ElementAt(coCount)).ToString();
-                            if (addition.Length > 1)
-                            {
-                                char[] currentAddition = addition.ToCharArray();
-                                result[coCount] = (int)Char.GetNumericValue(currentAddition[1]);
-                                AddCO = (int)Char.GetNumericValue(currentAddition[0]);
-                            }
-                            else
-                            {
-                                result[coCount] = Int32.Parse(addition);
-                                AddCO = 0;
-                            }
+                            processAddition(ref result, ref AddCO, addition, coCount, false);
                         }
                     }
-
                 }
-                else
+                else // 1-digit product
                 {
                     if (result.Count == 0 || result.Count <= coCount)
                     {
@@ -130,17 +99,7 @@ static class Program
                     else
                     {
                         addition = ((int)Char.GetNumericValue(currentProduct[0]) + result.ElementAt(coCount)).ToString();
-
-                        if (addition.Length > 1)
-                        {
-                            char[] currentAddition = addition.ToCharArray();
-                            result[coCount] = (int)Char.GetNumericValue(currentAddition[1]);
-                            AddCO = (int)Char.GetNumericValue(currentAddition[0]);
-                        }
-                        else
-                        {
-                            result[coCount] = Int32.Parse(addition);
-                        }
+                        processAddition(ref result, ref AddCO, addition, coCount, false);
                     }
 
                     while (AddCO > 0)
@@ -155,23 +114,11 @@ static class Program
                         else
                         {
                             addition = (AddCO + result.ElementAt(coCount)).ToString();
-                            if (addition.Length > 1)
-                            {
-                                char[] currentAddition = addition.ToCharArray();
-                                result[coCount] = (int)Char.GetNumericValue(currentAddition[1]);
-                                AddCO = (int)Char.GetNumericValue(currentAddition[0]);
-                            }
-                            else
-                            {
-                                result[coCount] = Int32.Parse(addition);
-                                AddCO = 0;
-                            }
+                            processAddition(ref result, ref AddCO, addition, coCount, false);
                         }
                     }
 
                 }
-
-
                 tempAddCount += 1;
             }
         }
@@ -180,26 +127,36 @@ static class Program
         return result;
     }
 
-    static List<int> Add(int[] x, int[] y)
+    /// <summary>
+    /// Process the addition result.
+    /// </summary>
+    /// <param name="result">A list to store the current multiplication result</param>
+    /// <param name="carryOver">An int object </param>
+    /// <param name="additionResult">The addition result to be processed</param>
+    /// <param name="isInsert">true: Insert into result, false: Replace result</param>
+    static void processAddition(ref List<int>result, ref int carryOver, string additionResult, int currentPosition, bool isInsert)
     {
-        List<int> sum = new List<int>();
-        int maxDigLength = Math.Max(x.Length, y.Length);
-        int rem = 0;
-        for (int ctr = 0; ctr < maxDigLength; ctr++)
+        if (additionResult.Length > 1)
         {
-            int xDig = ctr < x.Length ? x[ctr] : 0;
-            int yDig = ctr < y.Length ? y[ctr] : 0;
-            int digSum = xDig + yDig + rem;
-            sum.Add(digSum % 10);
-            rem = digSum / 10;
+            char[] currentAddition = additionResult.ToCharArray();
+            result[currentPosition] = (int)Char.GetNumericValue(currentAddition[1]);
+            carryOver = (int)Char.GetNumericValue(currentAddition[0]);
         }
-        if (rem > 0)
+        else
         {
-            sum.Add(rem);
+            if (isInsert)
+                result.Insert(currentPosition, Int32.Parse(additionResult));
+            else
+                result[currentPosition] = Int32.Parse(additionResult);
+            carryOver = 0;
         }
-        return sum;
     }
 
+    /// <summary>
+    /// Convert integer into a list.
+    /// </summary>
+    /// <param name="strNum">Integer in string format</param>
+    /// <returns>List representing a integer</returns>
     static List<int> IntToDigList(string strNum)
     {
         List<int> digList = new List<int>();
